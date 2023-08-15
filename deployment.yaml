@@ -1,0 +1,84 @@
+##################################################################################################
+# ldap-api
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: ldap-api
+  labels:
+    app: ldap-api
+    service: ldap-service
+spec:
+  ports:
+    - port: 8090
+      name: http
+  selector:
+    app: ldap-api
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prod-ldap-api
+  labels:
+    account: ldap-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ldap-api-v1
+  labels:
+    app: ldap-api
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ldap-api
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: ldap-api
+        version: v1
+    spec:
+      serviceAccountName: prod-ldap-api
+      containers:
+        - name: keystore
+          image: dockeraccount/ldap-api:latest
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: ldap-api-config
+            - secretRef:
+                name: ldap-api-secret
+          ports:
+            - containerPort: 8090
+      imagePullSecrets:
+        - name: dockeracount_secret
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ldap-api-config
+data:
+  BIND_ADDRESS: :8090
+  LDAP_SERVER: ldaps://main-ad-server@personaldomain.com:636
+  LDAP_SERVER2: ldaps://main-ad-server2@personaldomain.com:636
+  Domain_First: personaldomain
+  Domain_Last: com
+---
+apiVersion: v1
+kind: Secret
+metadata: 
+  name: ldap-api-secret
+type: Opaque
+data: 
+  LDAP_PASSWORD: Ldap-admin-password # This value should be in base64 encoded
+  LDAP_USER: Ldap-admin-user # This value should be in base64 encoded

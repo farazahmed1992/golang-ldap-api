@@ -1,0 +1,498 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  AddNewGroupErrRes:
+    properties:
+      data:
+        example: Error return in API Response.
+        type: string
+        x-go-name: Data
+      status:
+        example: failed
+        type: string
+        x-go-name: Status
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  AddNewGroupRes:
+    description: Successful Action Response return.
+    properties:
+      data:
+        example: Add/Remove a Team/User
+        type: string
+        x-go-name: Data
+      status:
+        example: successful
+        type: string
+        x-go-name: Status
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  BulkModifyGroup:
+    properties:
+      groupDN:
+        description: the GroupDn is the CN name for the Group.
+        type: string
+        x-go-name: GroupDn
+      org:
+        description: the Org is the organization name.
+        type: string
+        x-go-name: Org
+      userDN:
+        description: the UserDN is the CN name for the user.
+        items:
+          type: string
+        type: array
+        x-go-name: UserDN
+    required:
+    - groupDN
+    - userDN
+    - org
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  GroupCreate:
+    properties:
+      group:
+        description: |-
+          The request body
+          in: body
+          Group name for creation.
+        type: string
+        x-go-name: Group
+      org:
+        description: the Org is the organization name.
+        type: string
+        x-go-name: Org
+      ou:
+        description: OU name for group to be placed in the active directory.
+        type: string
+        x-go-name: OU
+    required:
+    - group
+    - org
+    - ou
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  GroupDelete:
+    properties:
+      group:
+        description: Group name for creation.
+        type: string
+        x-go-name: Group
+      org:
+        description: the Org is the organization name.
+        type: string
+        x-go-name: Org
+    required:
+    - group
+    - org
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  ModifyGroup:
+    properties:
+      groupDN:
+        description: the GroupDn is the CN name for the Group.
+        type: string
+        x-go-name: GroupDn
+      org:
+        description: the Org is the organization name.
+        type: string
+        x-go-name: Org
+      userDN:
+        description: the UserDN is the CN name for the user.
+        type: string
+        x-go-name: UserDN
+    required:
+    - groupDN
+    - userDN
+    - org
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  UserCheck:
+    properties:
+      groupDN:
+        description: the GroupDn is the CN name for the Group.
+        type: string
+        x-go-name: GroupDn
+      org:
+        description: the Org is the organization name.
+        type: string
+        x-go-name: Org
+      userDN:
+        description: the UserDN is the CN name for the user.
+        type: string
+        x-go-name: UserDN
+    required:
+    - groupDN
+    - userDN
+    - org
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  UserCheckErrRes:
+    properties:
+      data:
+        example: User is not Present in defined the Group
+        type: string
+        x-go-name: Data
+      status:
+        example: failed
+        type: string
+        x-go-name: Status
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  UserCheckRes:
+    properties:
+      data:
+        example: User is Present in defined the Group
+        type: string
+        x-go-name: Data
+      status:
+        example: ok
+        type: string
+        x-go-name: Status
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+  UserCreate:
+    properties:
+      ou:
+        description: OU name for account to be placed.
+        type: string
+        x-go-name: OU
+      password:
+        description: password for account.
+        type: string
+        x-go-name: Password
+      username:
+        description: |-
+          The request body
+          in: body
+          username for account creation.
+        type: string
+        x-go-name: Username
+    required:
+    - username
+    - password
+    - ou
+    type: object
+    x-go-package: _/home/fakhan/go-ldap-api/handlers
+host: ldap.personaldomain.com
+info:
+  contact:
+    email: farazahmed1992@gmail.com
+    name: Faraz Ahmed Khan
+  description: |-
+    the purpose of this application is to provide an application
+    that is using plain go code to perform ldap actions over an API
+
+    This documents all the possible endpoints, parameters, security and usage.
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+  termsOfService: there are no TOS at this moment, use at your own risk we take no
+    responsibility
+  title: ldap active-directory API.
+  version: 1.0.0
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: This will show if the server is up.
+      operationId: health-checks
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/healthcheckok'
+      schemes:
+      - https
+      summary: Health check.
+  /api/add/bulkusertogroup:
+    post:
+      operationId: AddBulkUsersToGroup
+      parameters:
+      - in: body
+        name: server_id
+        schema:
+          $ref: '#/definitions/BulkModifyGroup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: A success response that verifies the creation of the new group
+            in AD.
+          schema:
+            $ref: '#/definitions/AddNewGroupRes'
+        "400":
+          description: A failure response with error message.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "401":
+          description: Data provided to API validation error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+      summary: Add Bulk Users to a group.
+      tags:
+      - BulkUser
+  /api/add/group:
+    post:
+      operationId: GroupCreate
+      parameters:
+      - in: body
+        name: server_id
+        schema:
+          $ref: '#/definitions/GroupCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: A success response that verifies the creation of the new group
+            in AD.
+          schema:
+            $ref: '#/definitions/AddNewGroupRes'
+        "400":
+          description: A failure response with error message.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "401":
+          description: Data provided to API validation error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+      summary: ADD new group.
+      tags:
+      - Group
+  /api/add/user:
+    post:
+      operationId: Add User
+      parameters:
+      - in: body
+        name: server_id
+        schema:
+          $ref: '#/definitions/UserCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User Created Successful.
+          schema:
+            $ref: '#/definitions/AddNewGroupRes'
+        "400":
+          description: Unable to Create user. 
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "401":
+          description: Data provided to API validation error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "404":
+          description: Unknown Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "405":
+          description: Ldap Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+      summary: Create User in an OU.
+      tags:
+      - User
+  /api/add/usertogroup:
+    post:
+      operationId: UserToGroup
+      parameters:
+      - in: body
+        name: server_id
+        schema:
+          $ref: '#/definitions/ModifyGroup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User Added Successful.
+          schema:
+            $ref: '#/definitions/AddNewGroupRes'
+        "400":
+          description: Unable to add user in the Group. 
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "401":
+          description: Data provided to API validation error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "402":
+          description: User does not exist in the Directory.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "403":
+          description: Group does not exist in the Directory.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "404":
+          description: Unknown Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "405":
+          description: Ldap Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+      summary: ADD user to a group.
+      tags:
+      - User
+  /api/check/usertogroup:
+    post:
+      operationId: CheckUserToGroup
+      parameters:
+      - in: body
+        name: server_id
+        schema:
+          $ref: '#/definitions/UserCheck'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User is Present is the defined Group.
+          schema:
+            $ref: '#/definitions/UserCheckRes'
+        "400":
+          description: User is not Present in defined Group.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "401":
+          description: Data provided to API validation error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "403":
+          description: Group does not exist in the Directory.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "404":
+          description: Unknown Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+      summary: Check user exist in defined group.
+      tags:
+      - User
+  /api/remove/bulkusersfromgroup:
+    post:
+      operationId: RemoveBulkUsersFromGroup
+      parameters:
+      - in: body
+        name: server_id
+        schema:
+          $ref: '#/definitions/BulkModifyGroup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: A success response that verifies the creation of the new group
+            in AD.
+          schema:
+            $ref: '#/definitions/AddNewGroupRes'
+        "400":
+          description: A failure response with error message.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "401":
+          description: Data provided to API validation error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+      summary: Remove Bulk Users from a group.
+      tags:
+      - BulkUser
+  /api/remove/group:
+    post:
+      operationId: GroupDelete
+      parameters:
+      - in: body
+        name: server_id
+        schema:
+          $ref: '#/definitions/GroupDelete'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Team Group has been removed.
+          schema:
+            $ref: '#/definitions/AddNewGroupRes'
+        "401":
+          description: Data provided to API validation error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "403":
+          description: Group does not exist in the Directory.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "404":
+          description: Unknown Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "405":
+          description: Ldap Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+      summary: Remove group.
+      tags:
+      - Group
+  /api/remove/userfromgroup:
+    post:
+      operationId: RemoveUserFromGroup
+      parameters:
+      - in: body
+        name: server_id
+        schema:
+          $ref: '#/definitions/ModifyGroup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User removed from the Group.
+          schema:
+            $ref: '#/definitions/AddNewGroupRes'
+        "401":
+          description: Data provided to API validation error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "402":
+          description: User does not exist in the Directory.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "403":
+          description: Group does not exist in the Directory.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "404":
+          description: Unknown Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+        "405":
+          description: Ldap Error.
+          schema:
+            $ref: '#/definitions/AddNewGroupErrRes'
+      summary: Remove user from a group.
+      tags:
+      - User
+produces:
+- application/json
+responses:
+  healthcheckok:
+    description: A HealthCheck is an success response that is used to verify if the
+      server is up.
+    schema:
+      properties:
+        data:
+          example: Api Server is Running
+          type: string
+          x-go-name: Data
+        status:
+          example: ok
+          type: string
+          x-go-name: Status
+      type: object
+schemes:
+- https
+security:
+- api_key: []
+securityDefinitions:
+  api_key:
+    in: header
+    name: X-KEY
+    type: apiKey
+swagger: "2.0"
